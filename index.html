@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Gerador de Rotina</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    input, select, button { margin: 5px; padding: 8px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #000; padding: 8px; text-align: center; vertical-align: top; }
+    th { background: #ddd; }
+
+    /* Cores por classificação */
+    .obrigatoria { background-color: #ff4d4d; color: white; }
+    .importante { background-color: #ff9933; }
+    .opcional { background-color: #66cc66; }
+
+    .atividade-box {
+      margin: 5px 0;
+      padding: 5px;
+      border-radius: 5px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Gerador de Rotina Semanal</h2>
+
+<select id="dia">
+  <option>Segunda</option>
+  <option>Terça</option>
+  <option>Quarta</option>
+  <option>Quinta</option>
+  <option>Sexta</option>
+  <option>Sábado</option>
+  <option>Domingo</option>
+</select>
+
+<input type="text" id="atividade" placeholder="Atividade">
+<input type="time" id="inicio">
+<input type="time" id="fim">
+
+<select id="classificacao">
+  <option value="obrigatoria">Obrigatória</option>
+  <option value="importante">Importante</option>
+  <option value="opcional">Opcional</option>
+</select>
+
+<button onclick="adicionar()">Adicionar</button>
+<button onclick="gerarTabela()">Gerar Tabela</button>
+<button onclick="gerarPDF()">Baixar PDF</button>
+
+<table id="tabela">
+  <thead>
+    <tr>
+      <th>Segunda</th>
+      <th>Terça</th>
+      <th>Quarta</th>
+      <th>Quinta</th>
+      <th>Sexta</th>
+      <th>Sábado</th>
+      <th>Domingo</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr id="linhaDias"></tr>
+  </tbody>
+</table>
+
+<script>
+  let dados = [];
+
+  function adicionar() {
+    const dia = document.getElementById("dia").value;
+    const atividade = document.getElementById("atividade").value;
+    const inicio = document.getElementById("inicio").value;
+    const fim = document.getElementById("fim").value;
+    const classificacao = document.getElementById("classificacao").value;
+
+    if (!atividade || !inicio || !fim) {
+      alert("Preencha todos os campos!");
+      return;
+    }
+
+    dados.push({ dia, atividade, inicio, fim, classificacao });
+    alert("Atividade adicionada!");
+  }
+
+  function gerarTabela() {
+    const diasSemana = ["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"];
+    const linha = document.getElementById("linhaDias");
+    linha.innerHTML = "";
+
+    diasSemana.forEach(dia => {
+      const td = document.createElement("td");
+
+      const atividadesDia = dados
+        .filter(item => item.dia === dia)
+        .sort((a, b) => a.inicio.localeCompare(b.inicio));
+
+      atividadesDia.forEach(item => {
+        const div = document.createElement("div");
+        div.classList.add("atividade-box", item.classificacao);
+        div.innerHTML = `
+          <strong>${item.inicio} - ${item.fim}</strong><br>
+          ${item.atividade}
+        `;
+        td.appendChild(div);
+      });
+
+      linha.appendChild(td);
+    });
+  }
+
+  async function gerarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.text("Rotina Semanal", 10, 10);
+
+    let y = 20;
+
+    const diasSemana = ["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"];
+
+    diasSemana.forEach(dia => {
+      doc.text(dia + ":", 10, y);
+      y += 6;
+
+      const atividadesDia = dados
+        .filter(item => item.dia === dia)
+        .sort((a, b) => a.inicio.localeCompare(b.inicio));
+
+      atividadesDia.forEach(item => {
+        doc.text(`- ${item.inicio}-${item.fim} ${item.atividade} [${item.classificacao}]`, 12, y);
+        y += 6;
+      });
+
+      y += 4;
+    });
+
+    doc.save("rotina.pdf");
+  }
+</script>
+
+</body>
+</html>
