@@ -11,7 +11,7 @@
     th, td { border: 1px solid #000; padding: 8px; text-align: center; vertical-align: top; }
     th { background: #ddd; }
 
-    /* Cores por classificação */
+    /* Cores */
     .obrigatoria { background-color: #ff4d4d; color: white; }
     .importante { background-color: #ff9933; }
     .opcional { background-color: #66cc66; }
@@ -21,6 +21,29 @@
       padding: 5px;
       border-radius: 5px;
       font-size: 12px;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Feedback */
+    #feedback {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #333;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    #feedback.show {
+      opacity: 1;
     }
   </style>
 </head>
@@ -49,8 +72,9 @@
 </select>
 
 <button onclick="adicionar()">Adicionar</button>
-<button onclick="gerarTabela()">Gerar Tabela</button>
 <button onclick="gerarPDF()">Baixar PDF</button>
+
+<div id="feedback">✔ Atividade adicionada</div>
 
 <table id="tabela">
   <thead>
@@ -72,6 +96,15 @@
 <script>
   let dados = [];
 
+  function mostrarFeedback() {
+    const feedback = document.getElementById("feedback");
+    feedback.classList.add("show");
+
+    setTimeout(() => {
+      feedback.classList.remove("show");
+    }, 1500);
+  }
+
   function adicionar() {
     const dia = document.getElementById("dia").value;
     const atividade = document.getElementById("atividade").value;
@@ -80,12 +113,19 @@
     const classificacao = document.getElementById("classificacao").value;
 
     if (!atividade || !inicio || !fim) {
-      alert("Preencha todos os campos!");
+      mostrarFeedback();
       return;
     }
 
     dados.push({ dia, atividade, inicio, fim, classificacao });
-    alert("Atividade adicionada!");
+
+    gerarTabela();
+
+    document.getElementById("atividade").value = "";
+    document.getElementById("inicio").value = "";
+    document.getElementById("fim").value = "";
+
+    mostrarFeedback();
   }
 
   function gerarTabela() {
