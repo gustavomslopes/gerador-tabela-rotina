@@ -45,21 +45,31 @@
     #feedback.show {
       opacity: 1;
     }
+
+    .dias-container {
+      margin: 10px 0;
+    }
+
+    .dias-container label {
+      margin-right: 10px;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
 
 <h2>Gerador de Rotina Semanal</h2>
 
-<select id="dia">
-  <option>Segunda</option>
-  <option>Terça</option>
-  <option>Quarta</option>
-  <option>Quinta</option>
-  <option>Sexta</option>
-  <option>Sábado</option>
-  <option>Domingo</option>
-</select>
+<div class="dias-container">
+  <strong>Selecione os dias:</strong><br>
+  <label><input type="checkbox" value="Segunda"> Segunda</label>
+  <label><input type="checkbox" value="Terça"> Terça</label>
+  <label><input type="checkbox" value="Quarta"> Quarta</label>
+  <label><input type="checkbox" value="Quinta"> Quinta</label>
+  <label><input type="checkbox" value="Sexta"> Sexta</label>
+  <label><input type="checkbox" value="Sábado"> Sábado</label>
+  <label><input type="checkbox" value="Domingo"> Domingo</label>
+</div>
 
 <input type="text" id="atividade" placeholder="Atividade">
 <input type="time" id="inicio">
@@ -96,8 +106,9 @@
 <script>
   let dados = [];
 
-  function mostrarFeedback() {
+  function mostrarFeedback(msg = "✔ Atividade adicionada") {
     const feedback = document.getElementById("feedback");
+    feedback.innerText = msg;
     feedback.classList.add("show");
 
     setTimeout(() => {
@@ -106,24 +117,29 @@
   }
 
   function adicionar() {
-    const dia = document.getElementById("dia").value;
+    const checkboxes = document.querySelectorAll(".dias-container input:checked");
+    const diasSelecionados = Array.from(checkboxes).map(cb => cb.value);
+
     const atividade = document.getElementById("atividade").value;
     const inicio = document.getElementById("inicio").value;
     const fim = document.getElementById("fim").value;
     const classificacao = document.getElementById("classificacao").value;
 
-    if (!atividade || !inicio || !fim) {
-      mostrarFeedback();
+    if (diasSelecionados.length === 0 || !atividade || !inicio || !fim) {
+      mostrarFeedback("⚠ Preencha tudo e selecione ao menos um dia");
       return;
     }
 
-    dados.push({ dia, atividade, inicio, fim, classificacao });
+    diasSelecionados.forEach(dia => {
+      dados.push({ dia, atividade, inicio, fim, classificacao });
+    });
 
     gerarTabela();
 
     document.getElementById("atividade").value = "";
     document.getElementById("inicio").value = "";
     document.getElementById("fim").value = "";
+    document.querySelectorAll(".dias-container input").forEach(cb => cb.checked = false);
 
     mostrarFeedback();
   }
