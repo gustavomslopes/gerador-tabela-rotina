@@ -40,7 +40,6 @@
     /* Cores */
     .obrigatoria {
       background-color: #ff4d4d;
-      color: white;
     }
 
     .importante {
@@ -246,7 +245,9 @@
                   item.classificacao === "obrigatoria" ? [255, 77, 77] :
                     item.classificacao === "importante" ? [255, 153, 51] :
                       [102, 204, 102],
-                textColor: [255, 255, 255],
+
+                textColor: [0, 0, 0],
+
                 fontStyle: "bold"
               }
             });
